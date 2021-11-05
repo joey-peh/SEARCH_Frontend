@@ -232,10 +232,9 @@ export default {
       console.log("category");
       this.suggestions = []; //clear suggestion
       this.tableItems = []; //clear table
-      this.keyword = null; //clear keyword selection
+      this.search = null; //clear keyword selection
+      this.suggestionWord = null;
 
-      //to repopulate table
-      this.repopulateTable = true;
       this.getRepositories();
     },
     sortModel() {
