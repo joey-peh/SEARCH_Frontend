@@ -75,7 +75,11 @@
           ><v-card class="mx-auto" max-width="500">
             <v-list>
               <v-list-item-group v-model="sortModel" mandatory>
-                <v-list-item v-for="(item, i) in sortItems" :key="i">
+                <v-list-item
+                  v-for="(item, i) in sortItems"
+                  :key="i"
+                  :disabled="isLoading"
+                >
                   <v-list-item-content>
                     <v-list-item-title v-text="item.text"></v-list-item-title>
                   </v-list-item-content>
