@@ -6,7 +6,7 @@
         <v-container>
           <v-row>
             <v-select
-              v-model="searchByModel"
+              v-model="categoryModel"
               :items="searchBy"
               label="Select search category"
               filled
@@ -18,14 +18,23 @@
             <v-combobox
               label="Search keyword"
               :items="suggestions"
-              v-model="model"
+              v-model="keyword"
               :loading="isLoading"
               :search-input.sync="search"
               placeholder="Start typing to Search"
-              :item-text="searchByModel.text"
+              :item-text="categoryModel.text"
               append-icon=" "
               :error-messages="errorMsg"
-            /><v-btn class="mt-3 ml-3" @click="getRepositories()">Search</v-btn>
+            /> </v-row
+          ><v-row
+            ><v-spacer /><v-btn
+              @click="
+                repopulateTable = true;
+                getRepositories();
+              "
+              :disabled="isLoading"
+              >Populate</v-btn
+            >
           </v-row>
         </v-container>
       </v-card-text>
@@ -62,7 +71,7 @@
             </template>
           </v-data-table>
         </v-col>
-        <v-col cols="2"
+        <v-col cols="2" v-if="this.categoryModel.name == 'repositories'"
           ><v-card class="mx-auto" max-width="500">
             <v-list>
               <v-list-item-group v-model="sortModel" mandatory>
@@ -84,7 +93,6 @@ import { debounce } from "debounce";
 export default {
   name: "SearchRepository",
   data: () => ({
-    searchClicked: false,
     sortModel: 0,
     sortItems: [
       { text: "Best match" },
@@ -115,14 +123,14 @@ export default {
     ],
     errorMsg: null,
     dialog: false,
-    searchWord: null,
-    descriptionLimit: 256,
+    searchWord: null, //display search word before table
     suggestions: [],
+    suggestionWord: null,
     isLoading: false,
-    model: null,
+    keyword: null,
     search: null,
     tableItems: [],
-    searchByModel: {
+    categoryModel: {
       name: "repositories",
       text: "name",
       headers: [
@@ -166,9 +174,9 @@ export default {
       },
       {
         name: "commits",
-        text: "message",
+        text: "commit.message",
         headers: [
-          { text: "Author", value: JSON.stringify("commit.author") },
+          { text: "Author", value: "commit.author.name" },
           { text: "Message", value: "commit.message" },
           {
             text: "Url",
@@ -213,31 +221,32 @@ export default {
         ],
       },
     ],
-    keywordChanged: false,
-    sortChanged: false,
+    repopulateTable: false,
   }),
   watch: {
     search: debounce(function (val) {
-      if (val != null && val.length > 0 && !this.isLoading) {
-        this.getRepositories();
-      }
+      //don't repopulate table, just provide suggestions
+      this.getRepositories();
     }, 500),
-    searchByModel() {
-      this.suggestions = [];
-      this.model = null;
-    },
-    model() {
-      this.keywordChanged = true;
+    categoryModel() {
+      console.log("category");
+      this.suggestions = []; //clear suggestion
+      this.tableItems = []; //clear table
+      this.keyword = null; //clear keyword selection
+
+      //to repopulate table
+      this.repopulateTable = true;
+      this.getRepositories();
     },
     sortModel() {
-      this.sortChanged = true;
-      this.keywordChanged = true;
+      //to repopulate table
+      this.repopulateTable = true;
       this.getRepositories();
     },
   },
   computed: {
     headers() {
-      let tmp = JSON.parse(JSON.stringify(this.searchByModel.headers));
+      let tmp = JSON.parse(JSON.stringify(this.categoryModel.headers));
       switch (this.sortModel) {
         case 1:
         case 2: {
@@ -254,8 +263,6 @@ export default {
           tmp.push({ text: "Updated at", value: "updated_at" });
           break;
         }
-        default:
-          return tmp;
       }
       tmp.push({ text: "Actions", value: "actions", sortable: false });
       return tmp;
@@ -267,29 +274,37 @@ export default {
         this.isLoading = true;
         if (this.errorMsg != null) this.errorMsg = null;
         let queryParams = {
-          category: this.searchByModel.name,
+          category: this.categoryModel.name,
           filterBy: this.search,
         };
 
+        //only for "repositories" atm
         if (this.sortItems[this.sortModel].sortOrder != undefined) {
           queryParams["sortOrder.sort"] =
             this.sortItems[this.sortModel].sortOrder.sort;
           queryParams["sortOrder.order"] =
             this.sortItems[this.sortModel].sortOrder.order;
         }
-        if (this.searchWord != this.search || this.sortChanged) {
+        if (
+          (this.search != null &&
+            this.search.length > 0 &&
+            //the word before this.search is not fetched yet
+            this.search != this.suggestionWord) ||
+          this.repopulateTable
+        ) {
           console.log("searching " + this.search);
+          this.suggestionWord = this.search;
           return axios
             .get("http://localhost:1234/search", {
               params: queryParams,
             })
             .then((res) => {
               this.suggestions = res.data.items;
-              if (this.keywordChanged) {
-                //when user press "search" button or select dropdown list
+              if (this.repopulateTable) {
                 this.searchWord = this.search;
-                this.tableItems = this.suggestions;
+                this.tableItems = res.data.items;
               }
+              this.repopulateTable = false;
               resolve(res);
             })
             .catch((err) => {
@@ -300,16 +315,15 @@ export default {
             })
             .finally(() => {
               this.isLoading = false;
-              this.keywordChanged = false;
-              this.sortChanged = false;
             });
         } else {
-          //suggestions already populated the keyword
-          this.searchWord = this.search;
-          this.tableItems = this.suggestions;
-          this.keywordChanged = false;
+          if (this.repopulateTable) {
+            this.searchWord = this.search;
+            this.tableItems = this.suggestions;
+          }
+          this.repopulateTable = false;
           this.isLoading = false;
-          return resolve("already in item list");
+          resolve("nth to search");
         }
       });
     },
