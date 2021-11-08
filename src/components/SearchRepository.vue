@@ -229,11 +229,11 @@ export default {
       this.getRepositories();
     }, 500),
     categoryModel() {
-      console.log("category");
       this.suggestions = []; //clear suggestion
       this.tableItems = []; //clear table
       this.search = null; //clear keyword selection
       this.suggestionWord = null;
+      this.sortModel = 0;
 
       this.getRepositories();
     },
