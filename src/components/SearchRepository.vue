@@ -120,10 +120,6 @@ export default {
         text: "Recently updated",
         sortOrder: { sort: "updated", order: "desc" },
       },
-      {
-        text: "Least recently updated",
-        sortOrder: { sort: "updated", order: "asc" },
-      },
     ],
     errorMsg: null,
     dialog: false,
