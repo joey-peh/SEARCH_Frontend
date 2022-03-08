@@ -8,10 +8,10 @@
         ><br />
         <p style="font-size: 10px">
           <i>
-            Source code can be found in
+            Page source code can be found in
             <a
-              href="https://github.com/joey-peh/SEARCH_Frontend/tree/frontend_only"
-              >https://github.com/joey-peh/SEARCH_Frontend/tree/frontend_only</a
+              href="https://github.com/joey-peh/SEARCH_Frontend/blob/frontend_only/src/components/SearchRepository.vue"
+              >here</a
             >
           </i>
         </p></v-card-subtitle
@@ -392,68 +392,6 @@ export default {
         }
       });
     },
-
-    getid(item) {
-      return item.id ? item.id : item.url ? item.url : item.name;
-    },
-    // getRepositories() {
-    //   //Spring Boot API
-    //   return new Promise((resolve, reject) => {
-    //     this.isLoading = true;
-    //     if (this.errorMsg != null) this.errorMsg = null;
-    //     let queryParams = {
-    //       category: this.categoryModel.name, //code/commits/users..
-    //       filterBy: this.search, //user=joey filterBy:joey
-    //     };
-
-    //     //only for "repositories" atm
-    //     if (this.sortItems[this.sortModel].sortOrder != undefined) {
-    //       queryParams["sortOrder.sort"] =
-    //         this.sortItems[this.sortModel].sortOrder.sort;
-    //       queryParams["sortOrder.order"] =
-    //         this.sortItems[this.sortModel].sortOrder.order;
-    //     }
-    //     if (
-    //       (this.search != null &&
-    //         this.search.length > 0 &&
-    //         //the word before this.search is not fetched yet
-    //         this.search != this.suggestionWord) ||
-    //       this.repopulateTable
-    //     ) {
-    //       console.log("searching " + this.search);
-    //       this.suggestionWord = this.search;
-    //       return axios
-    //         .get("http://localhost:1234/search", {
-    //           params: queryParams,
-    //         })
-    //         .then((res) => {
-    //           this.suggestions = res.data.items;
-    //           if (this.repopulateTable) {
-    //             this.searchWord = this.search;
-    //             this.tableItems = res.data.items;
-    //           }
-    //           this.repopulateTable = false;
-    //           resolve(res);
-    //         })
-    //         .catch((err) => {
-    //           if (err.response != null) this.errorMsg = err.response.data;
-    //           else this.errorMsg = err.toString();
-    //           reject(err);
-    //         })
-    //         .finally(() => {
-    //           this.isLoading = false;
-    //         });
-    //     } else {
-    //       if (this.repopulateTable) {
-    //         this.searchWord = this.search;
-    //         this.tableItems = this.suggestions;
-    //       }
-    //       this.repopulateTable = false;
-    //       this.isLoading = false;
-    //       resolve("nth to search");
-    //     }
-    //   });
-    // },
   },
 };
 </script>
