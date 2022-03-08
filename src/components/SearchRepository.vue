@@ -30,7 +30,7 @@
             ><v-spacer /><v-btn
               @click="
                 repopulateTable = true;
-                getRepositories();
+                getFromGithubAPI();
               "
               :disabled="isLoading"
               >Populate</v-btn
@@ -49,7 +49,10 @@
             style="max-width: 100vw"
           >
             <template v-slot:[`item.actions`]="{ item }">
-              <v-dialog v-model="dialog" scrollable
+              <v-dialog
+                v-model="information_dialog[item.id]"
+                scrollable
+                :key="item.id"
                 ><template v-slot:activator="{ on, attrs }">
                   <v-icon small v-bind="attrs" v-on="on"
                     >mdi-information</v-icon
@@ -57,12 +60,17 @@
                 </template>
                 <v-card
                   ><v-card-text
-                    ><v-container>{{ item }}</v-container></v-card-text
+                    ><v-container>
+                      {{ item }}
+                    </v-container></v-card-text
                   >
                   <v-divider></v-divider>
                   <v-card-actions
                     ><v-spacer></v-spacer
-                    ><v-btn color="green darken-1" text @click="dialog = false"
+                    ><v-btn
+                      color="green darken-1"
+                      text
+                      @click.stop="$set(information_dialog, item.id, false)"
                       >Close</v-btn
                     ></v-card-actions
                   >
@@ -122,7 +130,7 @@ export default {
       },
     ],
     errorMsg: null,
-    dialog: false,
+    information_dialog: {},
     searchWord: null, //display search word before table
     suggestions: [],
     suggestionWord: null,
@@ -226,7 +234,8 @@ export default {
   watch: {
     search: debounce(function (val) {
       //don't repopulate table, just provide suggestions
-      this.getRepositories();
+      // this.getRepositories();
+      this.getFromGithubAPI();
     }, 500),
     categoryModel() {
       this.suggestions = []; //clear suggestion
@@ -268,13 +277,72 @@ export default {
     },
   },
   methods: {
+    getFromGithubAPI() {
+      this.isLoading = true;
+      const GITHUB_API_BASE_URL = "https://api.github.com/search/";
+      let category = this.categoryModel.name;
+      let query = "?q=" + this.search;
+      let sort = null;
+      if (this.sortItems[this.sortModel].sortOrder != undefined) {
+        let s = this.sortItems[this.sortModel].sortOrder.sort;
+        let o = this.sortItems[this.sortModel].sortOrder.order;
+        sort = "&sort=" + s + "&order=" + o;
+      }
+
+      let search_url = GITHUB_API_BASE_URL;
+      if (category != null) search_url += category;
+      if (query != null) search_url += query;
+      if (sort != null) search_url += sort;
+
+      return new Promise((resolve, reject) => {
+        if (
+          (this.search != null &&
+            this.search.length > 0 &&
+            //the word before this.search is not fetched yet
+            this.search != this.suggestionWord) ||
+          this.repopulateTable
+        ) {
+          console.log("searching " + this.search);
+          this.suggestionWord = this.search;
+          return axios
+            .get(search_url)
+            .then((res) => {
+              this.suggestions = res.data.items;
+              if (this.repopulateTable) {
+                this.searchWord = this.search;
+                this.tableItems = res.data.items;
+              }
+              this.repopulateTable = false;
+              resolve(res);
+            })
+            .catch((err) => {
+              if (err.response != null) this.errorMsg = err.response.data;
+              else this.errorMsg = err.toString();
+              reject(err);
+            })
+            .finally(() => {
+              this.isLoading = false;
+            });
+        } else {
+          if (this.repopulateTable) {
+            this.searchWord = this.search;
+            this.tableItems = this.suggestions;
+          }
+          this.repopulateTable = false;
+          this.isLoading = false;
+          resolve("nth to search");
+        }
+      });
+    },
+
     getRepositories() {
+      //Spring Boot API
       return new Promise((resolve, reject) => {
         this.isLoading = true;
         if (this.errorMsg != null) this.errorMsg = null;
         let queryParams = {
-          category: this.categoryModel.name,
-          filterBy: this.search,
+          category: this.categoryModel.name, //code/commits/users..
+          filterBy: this.search, //user=joey filterBy:joey
         };
 
         //only for "repositories" atm
@@ -307,8 +375,7 @@ export default {
               resolve(res);
             })
             .catch((err) => {
-              if (err.response != null && err.response.status == 503)
-                this.errorMsg = err.response.data;
+              if (err.response != null) this.errorMsg = err.response.data;
               else this.errorMsg = err.toString();
               reject(err);
             })
