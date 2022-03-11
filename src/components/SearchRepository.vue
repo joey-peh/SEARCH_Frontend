@@ -57,7 +57,7 @@
           </v-container>
         </v-card-text>
       </v-card>
-      <div class="pa-3 ma-5" v-if="tableItems.length > 0">
+      <div class="pa-3 pt-5" v-if="tableItems.length > 0">
         Displaying results for <b>{{ searchWord }}</b>
         <v-row>
           <v-col>
