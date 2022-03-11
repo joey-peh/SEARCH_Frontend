@@ -1,135 +1,136 @@
 <template>
-  <div>
-    <v-card>
-      <v-card-title class="justify-center">Github Search Webpage </v-card-title>
-      <v-card-subtitle style="text-align: center"
-        >A <u>single</u> autocomplete page written in VueJS based on
-        <a href="https://developer.github.com/v3/search">Github Search API</a
-        ><br />
-        <p style="font-size: 10px">
-          <i>
-            Page source code can be found in
-            <a
-              href="https://github.com/joey-peh/SEARCH_Frontend/blob/frontend_only/src/components/SearchRepository.vue"
-              >here</a
-            >
-          </i>
-        </p></v-card-subtitle
-      >
-      <v-card-text>
-        <v-container>
-          <v-row>
-            <v-select
-              v-model="categoryModel"
-              :items="searchBy"
-              label="Select search category"
-              filled
-              item-text="name"
-              return-object
-            ></v-select
-          ></v-row>
-          <!-- 
-              @keydown.space="preventLeadingSpace" -->
-          <v-row>
-            <v-combobox
-              label="Search keyword"
-              :items="suggestions"
-              v-model="keyword"
-              :loading="isLoading"
-              :search-input.sync="search"
-              placeholder="Start typing to Search"
-              :item-text="categoryModel.text"
-              append-icon=" "
-              :error-messages="errorMsg"
-              messages="Rate limit: 10 requests/min"
-            />
-            <v-btn
-              class="ml-2 mt-3"
-              @click="
-                repopulateTable = true;
-                getFromGithubAPI();
-              "
-              :disabled="isLoading || search == null"
-              >Populate Results</v-btn
-            ></v-row
-          >
-        </v-container>
-      </v-card-text>
-    </v-card>
-    <div class="pa-3 ma-5" v-if="tableItems.length > 0">
-      Displaying results for <b>{{ searchWord }}</b>
-      <v-row>
-        <v-col>
-          <v-data-table
-            :headers="headers"
-            :items="tableItems"
-            style="max-width: 100vw"
-          >
-            <template v-slot:[`item.actions`]="{ item }">
-              <v-dialog
-                v-model="information_dialog[item[categoryModel.id]]"
-                scrollable
-                :key="item.id"
-                ><template v-slot:activator="{ on, attrs }">
-                  <v-icon small v-bind="attrs" v-on="on"
-                    >mdi-information</v-icon
-                  >
-                </template>
-                <v-card>
-                  <v-card-title class="text-h5 grey lighten-2">
-                    {{ item[categoryModel.text] }}
-                  </v-card-title>
-                  <v-card-text
-                    ><v-container>
-                      <v-data-table
-                        :headers="categoryModel.headers"
-                        :items="[item]"
-                        :disable-sort="true"
-                        hide-default-footer
-                        class="pb-5"
-                      ></v-data-table>
-                      <v-card>
-                        <v-card-title>JSON Information</v-card-title>
-                        <v-card-text>{{ item }}</v-card-text>
-                      </v-card>
-                    </v-container></v-card-text
-                  >
-                  <v-divider></v-divider>
-                  <v-card-actions
-                    ><v-spacer></v-spacer
-                    ><v-btn
-                      color="green darken-1"
-                      text
-                      @click.stop="
-                        $set(information_dialog, item[categoryModel.id], false)
-                      "
-                      >Close</v-btn
-                    ></v-card-actions
-                  >
-                </v-card></v-dialog
+  <v-row>
+    <v-col>
+      <v-card>
+        <v-card-title class="justify-center"
+          >Github Search Webpage
+        </v-card-title>
+        <v-card-subtitle style="text-align: center"
+          >A <u>single</u> autocomplete page written in VueJS based on
+          <a href="https://developer.github.com/v3/search">Github Search API</a
+          ><br />
+          <p style="font-size: 10px">
+            <i>
+              Page source code can be found in
+              <a
+                href="https://github.com/joey-peh/SEARCH_Frontend/blob/frontend_only/src/components/SearchRepository.vue"
+                >here</a
               >
-            </template>
-          </v-data-table>
-        </v-col>
-        <v-col cols="2" v-if="this.categoryModel.name == 'repositories'"
-          ><v-card class="mx-auto" max-width="500">
-            <v-list>
-              <v-list-item-group v-model="sortModel" mandatory>
-                <v-list-item
-                  v-for="(item, i) in sortItems"
-                  :key="i"
-                  :disabled="isLoading"
+            </i>
+          </p></v-card-subtitle
+        >
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <v-select
+                v-model="categoryModel"
+                :items="searchBy"
+                label="Select search category"
+                filled
+                item-text="name"
+                return-object
+              ></v-select
+            ></v-row>
+            <v-row>
+              <v-combobox
+                label="Search keyword"
+                :items="suggestions"
+                v-model="keyword"
+                :loading="isLoading"
+                :search-input.sync="search"
+                placeholder="Start typing to Search"
+                :item-text="categoryModel.text"
+                append-icon=" "
+                :error-messages="errorMsg"
+                messages="Rate limit: 10 requests/min"
+              />
+              <v-btn
+                class="ml-2 mt-3"
+                @click="
+                  repopulateTable = true;
+                  getFromGithubAPI();
+                "
+                :disabled="isLoading || search == null"
+                >Populate Results</v-btn
+              ></v-row
+            >
+          </v-container>
+        </v-card-text>
+      </v-card>
+      <div class="pa-3 ma-5" v-if="tableItems.length > 0">
+        Displaying results for <b>{{ searchWord }}</b>
+        <v-row>
+          <v-col>
+            <v-data-table :headers="headers" :items="tableItems">
+              <template v-slot:[`item.actions`]="{ item }">
+                <v-dialog
+                  v-model="information_dialog[item[categoryModel.id]]"
+                  scrollable
+                  :key="item.id"
+                  ><template v-slot:activator="{ on, attrs }">
+                    <v-icon small v-bind="attrs" v-on="on"
+                      >mdi-information</v-icon
+                    >
+                  </template>
+                  <v-card>
+                    <v-card-title class="text-h5 grey lighten-2">
+                      {{ item[categoryModel.text] }}
+                    </v-card-title>
+                    <v-card-text
+                      ><v-container>
+                        <v-data-table
+                          :headers="categoryModel.headers"
+                          :items="[item]"
+                          :disable-sort="true"
+                          hide-default-footer
+                          class="pb-5"
+                        ></v-data-table>
+                        <v-card>
+                          <v-card-title>JSON Information</v-card-title>
+                          <v-card-text>{{ item }}</v-card-text>
+                        </v-card>
+                      </v-container></v-card-text
+                    >
+                    <v-divider></v-divider>
+                    <v-card-actions
+                      ><v-spacer></v-spacer
+                      ><v-btn
+                        color="green darken-1"
+                        text
+                        @click.stop="
+                          $set(
+                            information_dialog,
+                            item[categoryModel.id],
+                            false
+                          )
+                        "
+                        >Close</v-btn
+                      ></v-card-actions
+                    >
+                  </v-card></v-dialog
                 >
-                  <v-list-item-content>
-                    <v-list-item-title v-text="item.text"></v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list-item-group>
-            </v-list> </v-card
-        ></v-col>
-      </v-row>
-    </div>
-  </div>
+              </template>
+            </v-data-table>
+          </v-col>
+          <v-col cols="2" v-if="this.categoryModel.name == 'repositories'"
+            ><v-card class="mx-auto d-inline-flex">
+              <v-list>
+                <v-list-item-group v-model="sortModel" mandatory>
+                  <v-list-item
+                    v-for="(item, i) in sortItems"
+                    :key="i"
+                    :disabled="isLoading"
+                  >
+                    <v-list-item-content>
+                      <v-list-item-title v-text="item.text"></v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list-item-group>
+              </v-list> </v-card
+          ></v-col>
+        </v-row>
+      </div> </v-col
+  ></v-row>
 </template>
 <script>
 import axios from "axios";
@@ -187,21 +188,6 @@ export default {
           },
         ],
       },
-      // {
-      //   name: "code",
-      //   text: "name",
-      //   headers: [
-      //     { text: "Name", value: "name" },
-      //     {
-      //       text: "Path",
-      //       value: "path",
-      //     },
-      //     {
-      //       text: "Url",
-      //       value: "url",
-      //     },
-      //   ],
-      // },
       {
         name: "commits",
         text: "commit.message",
