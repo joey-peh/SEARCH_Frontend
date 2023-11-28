@@ -1,65 +1,80 @@
 <template>
   <v-row>
     <v-col>
-      <v-card>
-        <v-card-title class="justify-center"
-          >Github Search Webpage
-        </v-card-title>
-        <v-card-subtitle style="text-align: center"
-          >Hello! My name is Joey. I hope that this small project will give an
-          idea of what I can do! <br />
-          Written in VueJS based on
-          <a href="https://developer.github.com/v3/search">Github Search API</a
-          ><br />
-          <p style="font-size: 10px">
-            <i>
-              You can view the codes
-              <a
-                href="https://github.com/joey-peh/SEARCH_Frontend/blob/frontend_only/src/components/SearchRepository.vue"
-                >here</a
-              >
-            </i>
-          </p></v-card-subtitle
-        >
-        <v-card-text>
-          <v-container>
-            <v-row>
-              <v-select
-                v-model="categoryModel"
-                :items="searchBy"
-                label="Select search category"
-                filled
-                item-text="name"
-                return-object
-              ></v-select
-            ></v-row>
-            <v-row>
-              <v-combobox
-                label="Search keyword"
-                :items="suggestions"
-                v-model="keyword"
-                :loading="isLoading"
-                :search-input.sync="search"
-                placeholder="Start typing to Search"
-                :item-text="categoryModel.text"
-                append-icon=" "
-                :error-messages="errorMsg"
-                messages="Rate limit: 10 requests/min"
-              />
-              <v-btn
-                class="ml-2 mt-3"
-                @click="
-                  repopulateTable = true;
-                  getFromGithubAPI();
-                "
-                :disabled="isLoading || search == null"
-                >Populate Results</v-btn
-              ></v-row
+      <v-card-title
+        class="justify-center"
+        style="
+          font-family: Helvetica;
+          text-size: 46px;
+          font-weight: bold;
+          text-transform: uppercase;
+          letter-spacing: 1.5px;
+        "
+        >Github Search Webpage
+      </v-card-title>
+      <v-card-subtitle
+        style="
+          text-align: center;
+          font-family: Helvetica;
+          letter-space: 180;
+          text-size: 16px;
+        "
+        >Hello! My name is Joey. I hope that this small project will give an
+        idea of what I can do! <br />
+        Written in VueJS using
+        <a href="https://developer.github.com/v3/search" target="_blank"
+          >Github Search API</a
+        ><br />
+        <p style="font-size: 10px">
+          <i>
+            You can view the codes
+            <a
+              href="https://github.com/joey-peh/SEARCH_Frontend/blob/frontend_only/src/components/SearchRepository.vue"
+              >here</a
             >
-          </v-container>
-        </v-card-text>
-      </v-card>
-      <div class="pa-3 pt-5" v-if="tableItems.length > 0">
+          </i>
+        </p></v-card-subtitle
+      >
+      <v-card-text>
+        <v-container>
+          <v-row>
+            <v-select
+              v-model="categoryModel"
+              :items="searchBy"
+              label="Select search category"
+              filled
+              item-text="name"
+              return-object
+            ></v-select
+          ></v-row>
+          <v-row>
+            <v-combobox
+              label="Search keyword"
+              :items="suggestions"
+              v-model="keyword"
+              :loading="isLoading"
+              :search-input.sync="search"
+              placeholder="Start typing to Search"
+              :item-text="categoryModel.text"
+              append-icon=" "
+              :error-messages="errorMsg"
+              messages="Rate limit: 10 requests/min"
+            />
+            <v-btn
+              class="ml-2 mt-3"
+              @click="
+                repopulateTable = true;
+                getFromGithubAPI();
+              "
+              :disabled="isLoading || search == null"
+              >Populate Results</v-btn
+            ></v-row
+          >
+        </v-container>
+      </v-card-text>
+
+      <v-divider v-if="tableItems.length > 0"></v-divider>
+      <div class="pa-10 pt-5" v-if="tableItems.length > 0">
         Displaying results for <b>{{ searchWord }}</b>
         <v-row>
           <v-col>
@@ -115,8 +130,11 @@
             </v-data-table>
           </v-col>
           <v-col cols="2" v-if="this.categoryModel.name == 'repositories'"
-            ><v-card class="mx-auto d-inline-flex">
+            ><v-card>
               <v-list>
+                <v-list-subheader class="ma-2" style="color: lightgrey"
+                  >SORT BY</v-list-subheader
+                >
                 <v-list-item-group v-model="sortModel" mandatory>
                   <v-list-item
                     v-for="(item, i) in sortItems"
