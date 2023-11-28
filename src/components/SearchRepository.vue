@@ -6,12 +6,14 @@
           >Github Search Webpage
         </v-card-title>
         <v-card-subtitle style="text-align: center"
-          >A <u>single</u> autocomplete page written in VueJS based on
+          >Hello! My name is Joey. I hope that this small project will give an
+          idea of what I can do! <br />
+          Written in VueJS based on
           <a href="https://developer.github.com/v3/search">Github Search API</a
           ><br />
           <p style="font-size: 10px">
             <i>
-              Page source code can be found in
+              You can view the codes
               <a
                 href="https://github.com/joey-peh/SEARCH_Frontend/blob/frontend_only/src/components/SearchRepository.vue"
                 >here</a

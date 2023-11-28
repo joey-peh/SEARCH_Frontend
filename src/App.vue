@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-main>
-      <v-container fill-height>
+      <v-container fill-height fluid>
         <SearchRepository />
       </v-container>
     </v-main>
