@@ -1,4 +1,5 @@
 # VueJS Autocomplete Frontend Assignment Project
+Hosted on https://git-search-engine.firebaseapp.com
 
 ## Project setup
 ```
